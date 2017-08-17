@@ -53,9 +53,12 @@ contract('Purchase', function(accounts) {
     });
 
     it("should be able to confirm received", function() {
+        var passedInValue = 2;
         var purchase;
         var watcher;
-        return Purchase.new({from: seller, value: 2}).then(function(instance) {
+        var before, after;
+        var beforeConfirmReceivedBalance;
+        return Purchase.new({from: seller, value: passedInValue}).then(function(instance) {
             purchase = instance;
             watcher = purchase.ItemReceived();
             return purchase.confirmPurchase({from: buyer, value: 2});
@@ -67,6 +70,12 @@ contract('Purchase', function(accounts) {
             var promise = purchase.confirmReceived({from: notBuyer});
             return expectThrow(promise, "only buyer can confirmReceived");
         }).then(function() {
+            return web3.eth.getBalance(purchase.address);
+        }).then(function(balance) {
+            beforeConfirmReceivedBalance = balance;
+            return web3.eth.getBalance(seller);
+        }).then(function(sellerBalance) {
+            before = sellerBalance;
             return purchase.confirmReceived({from: buyer});
         }).then(function() {
             return watcher.get();
@@ -77,6 +86,12 @@ contract('Purchase', function(accounts) {
         }).then(function(state) {
             var Inactive = 2;
             assert.equal(state, Inactive, "state wasn't Inactive");
+            return web3.eth.getBalance(seller);
+        }).then(function(afterBalance) {
+            after = afterBalance;
+            return purchase.value();
+        }).then(function(value) {
+            assert.equal(before.plus(beforeConfirmReceivedBalance.minus(value)).valueOf(), after.valueOf(), "seller failed to received balance");
             return web3.eth.getBalance(purchase.address);
         }).then(function(balance) {
             assert.equal(balance.valueOf(), 0, "purchase balance wasn't cleanup");
