@@ -86,7 +86,7 @@ contract('Purchase', function(accounts) {
         });
     });
 
-    it("should be able to abort received", function() {
+    it("should be able to abort purchase and reclaim the ether", function() {
         var purchase;
         var watcher;
         var notSeller = accounts[2];
