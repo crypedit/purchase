@@ -3,7 +3,7 @@ var expectThrow = require('./expectThrow');
 
 contract('Purchase', function(accounts) {
     var seller = accounts[0];
-    var buyer = accounts[1];
+    var buyer  = accounts[1];
 
     it("should be able to create a purchase contract", function() {
         var purchase;
@@ -28,7 +28,7 @@ contract('Purchase', function(accounts) {
         return Purchase.new({from: buyer, value: 2}).then(function(instance) {
             purchase = instance;
             var nonDoubleInitialValue = 1; // initialValue is 1 wei here.
-            return expectThrow(purchase.confirmPurchase({from: buyer, value: nonDoubleInitialValue}));
+            return expectThrow(purchase.confirmPurchase({from: buyer, value: nonDoubleInitialValue}), "only double initial value accepted");
         }).then(function() {
             var doubleInitialValue = 2;
             watcher = purchase.PurchaseConfirmed();
@@ -36,7 +36,7 @@ contract('Purchase', function(accounts) {
         }).then(function() {
             return watcher.get();
         }).then(function(events) {
-            assert.equal(events.length, 1, "the extra event are triggered");
+            assert.equal(events.length, 1, "the events were triggered incorrectly");
             assert.equal(events[0].event,  "PurchaseConfirmed");
             return purchase.state();
         }).then(function(state) {
@@ -48,7 +48,7 @@ contract('Purchase', function(accounts) {
         }).then(function() {
             var doubleInitialValue = 2;
             promise = purchase.confirmPurchase({from: buyer, value: doubleInitialValue});
-            return expectThrow(promise, "purchase wasn't stay in Created status when confirmPurchase");
+            return expectThrow(promise, "purchase didn't stay in Created status when confirmPurchase");
         });
     });
 
@@ -80,7 +80,7 @@ contract('Purchase', function(accounts) {
         }).then(function() {
             return watcher.get();
         }).then(function(events) {
-            assert.equal(events.length, 1, "the extra event are triggered");
+            assert.equal(events.length, 1, "the events were triggered incorrectly");
             assert.equal(events[0].event, "ItemReceived");
             return purchase.state(); 
         }).then(function(state) {
@@ -97,7 +97,7 @@ contract('Purchase', function(accounts) {
             assert.equal(balance.valueOf(), 0, "purchase balance wasn't cleanup");
         }).then(function() {
             promise = purchase.confirmReceived({from: buyer});
-            return expectThrow(promise, "purchase wasn't stay in Locked status when confirmReceived");
+            return expectThrow(promise, "purchase didn't stay in Locked status when confirmReceived");
         });
     });
 
@@ -114,7 +114,7 @@ contract('Purchase', function(accounts) {
         }).then(function() {
             return watcher.get();
         }).then(function(events) {
-            assert.equal(events.length, 1, "the extra event are triggered");
+            assert.equal(events.length, 1, "the events were triggered incorrectly");
             assert.equal(events[0].event, "Aborted");
             return purchase.state(); 
         }).then(function(state) {
@@ -125,9 +125,8 @@ contract('Purchase', function(accounts) {
             assert.equal(balance.valueOf(), 0, "purchase balance wasn't cleanup");
         }).then(function() {
             promise = purchase.abort({from: seller});
-            return expectThrow(promise, "purchase wasn't stay in Created status when abort");
+            return expectThrow(promise, "purchase didn't stay in Created status when abort");
         });
     });
-
 });
 
