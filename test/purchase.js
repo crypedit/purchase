@@ -56,8 +56,8 @@ contract('Purchase', function(accounts) {
         var passedInValue = 2;
         var purchase;
         var watcher;
-        var before, after;
-        var beforeConfirmReceivedBalance;
+        var beforeBalanceOfSeller, afterBalanceOfSeller;
+        var beforeConfirmReceivedBalanceOfContract;
         return Purchase.new({from: seller, value: passedInValue}).then(function(instance) {
             purchase = instance;
             watcher = purchase.ItemReceived();
@@ -72,10 +72,10 @@ contract('Purchase', function(accounts) {
         }).then(function() {
             return web3.eth.getBalance(purchase.address);
         }).then(function(balance) {
-            beforeConfirmReceivedBalance = balance;
+            beforeConfirmReceivedBalanceOfContract = balance;
             return web3.eth.getBalance(seller);
         }).then(function(sellerBalance) {
-            before = sellerBalance;
+            beforeBalanceOfSeller = sellerBalance;
             return purchase.confirmReceived({from: buyer});
         }).then(function() {
             return watcher.get();
@@ -88,10 +88,11 @@ contract('Purchase', function(accounts) {
             assert.equal(state, Inactive, "state wasn't Inactive");
             return web3.eth.getBalance(seller);
         }).then(function(afterBalance) {
-            after = afterBalance;
+            afterBalanceOfSeller = afterBalance;
             return purchase.value();
-        }).then(function(value) {
-            assert.equal(before.plus(beforeConfirmReceivedBalance.minus(value)).valueOf(), after.valueOf(), "seller failed to received balance");
+        }).then(function(mortgageOfBuyer) {
+            var remainingBalance = beforeConfirmReceivedBalanceOfContract.minus(mortgageOfBuyer);
+            assert.equal(afterBalanceOfSeller.minus(beforeBalanceOfSeller).valueOf(), remainingBalance.valueOf(), "seller failed to received remaining balance");
             return web3.eth.getBalance(purchase.address);
         }).then(function(balance) {
             assert.equal(balance.valueOf(), 0, "purchase balance wasn't cleanup");
