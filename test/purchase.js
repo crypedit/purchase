@@ -25,7 +25,7 @@ contract('Purchase', function(accounts) {
     it("should be able to confirm a purchase", function() {
         var purchase;
         var watcher;
-        return Purchase.new({from: buyer, value: 2}).then(function(instance) {
+        return Purchase.new({from: seller, value: 2}).then(function(instance) {
             purchase = instance;
             var nonDoubleInitialValue = 1; // initialValue is 1 wei here.
             return expectThrow(purchase.confirmPurchase({from: buyer, value: nonDoubleInitialValue}), "only double initial value accepted");
