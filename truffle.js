@@ -13,7 +13,7 @@ module.exports = {
     },
     // ropsten: {
     //     network_id: 1,
-    //     provider: new WalletProvider(wallet, "http://45.76.197.72/:8545"),
+    //     provider: new WalletProvider(wallet, "http://45.76.197.72:8545"),
     // }
   }
 };
