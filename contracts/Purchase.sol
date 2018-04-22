@@ -8,7 +8,7 @@ contract Purchase {
     enum State { Created, Locked, Inactive }
     State public state;
 
-    function Purchase() payable {
+    function Purchase() payable public {
         seller = msg.sender;
         value = msg.value / 2;
         require((2 * value) == msg.value);
@@ -39,10 +39,11 @@ contract Purchase {
     function abort()
         onlySeller
         inState(State.Created)
+        public
     {
-        Aborted();
+        emit Aborted();
         state = State.Inactive;
-        seller.transfer(this.balance);
+        seller.transfer(address(this).balance);
     }
 
     /// Confirm the purchase as buyer.
@@ -52,9 +53,10 @@ contract Purchase {
     function confirmPurchase()
         inState(State.Created)
         payable
+        public
     {
         require(msg.value == (2 * value));
-        PurchaseConfirmed();
+        emit PurchaseConfirmed();
         buyer = msg.sender;
         state = State.Locked;
     }
@@ -64,8 +66,9 @@ contract Purchase {
     function confirmReceived()
         onlyBuyer
         inState(State.Locked)
+        public
     {
-        ItemReceived();
+        emit ItemReceived();
         // It is important to change the state first because
         // otherwise, the contracts called using `send` below
         // can call in again here.
@@ -75,6 +78,6 @@ contract Purchase {
         // block the refund - the withdraw pattern should be used.
 
         buyer.transfer(value);
-        seller.transfer(this.balance);
+        seller.transfer(address(this).balance);
     }
 }

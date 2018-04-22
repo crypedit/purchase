@@ -7,8 +7,9 @@ module.exports = {
       port: 9545,
       network_id: "*"
     },
-    rinkeby: {
+    ropsten: {
       network_id: 0,
+      gas: 1000000,
       provider: new HDWalletProvider(
         process.env.METAMASK_MNEMONIC,
         "https://ropsten.infura.io/LtCp6vYseQHwZxs0i94S"
