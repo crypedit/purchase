@@ -1,5 +1,5 @@
 var Purchase = artifacts.require("./Purchase.sol");
 
 module.exports = function(deployer) {
-    deployer.deploy(Purchase);
+    deployer.deploy(Purchase, {value: 2});
 };
