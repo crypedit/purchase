@@ -2,8 +2,8 @@
   "scripts": {
     "test": "solium --dir contracts && truffle test"
   },
-  "dependencies": {
+  "devDependencies": {
     "solium": "^0.5.4",
-    "truffle-wallet-provider": "^0.0.4"
+    "truffle-hdwallet-provider": "^0.0.3"
   }
 }
